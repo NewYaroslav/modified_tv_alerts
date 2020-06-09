@@ -1,0 +1,40 @@
+.tv-watcher-container {
+    position: fixed;
+    z-index: 9999999999999999;
+    top: 1px;
+    right: -110px;
+    width: 100px;
+    min-height: 40px;
+    padding: 5px;
+    opacity: .8;
+    background: red;
+    transition: .5s;
+    font-size: 14px;
+    color: honeydew;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    border-radius: 5px 0 0 5px;
+    -webkit-box-shadow: -7px 7px 5px 0px rgba(50, 50, 50, 0.75);
+    -moz-box-shadow:    -7px 7px 5px 0px rgba(50, 50, 50, 0.75);
+    box-shadow:         -7px 7px 5px 0px rgba(50, 50, 50, 0.75);
+    cursor: pointer;
+}
+
+
+.tv-watcher-container:hover{
+    opacity: 1;
+}
+
+.tv-watcher-container.open {
+    right: 0px;
+}
+.tv-watcher-container.watch {
+    background: green;
+}
+
+.tv-watcher-container b{
+    text-decoration: underline;
+    color: white;
+}
