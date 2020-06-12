@@ -52,7 +52,7 @@ const App = new Vue({
 			this.timer = setInterval(() => this.watchIterat(), 2000);
 			this.lastStatus = null;
 			this.lastNum = null;
-			connect_api();
+			// connect_api();
 		},
 		stopWatch(){
 			clearInterval(this.timer);
@@ -71,7 +71,7 @@ const App = new Vue({
 				const tbodys = Array.from(containerScrollable.getElementsByTagName('tbody'));
 				const [row1, row2] = tbodys.sort((a, b) => +b.querySelectorAll('td')[0].textContent - +a.querySelectorAll('td')[0].textContent)[0].getElementsByTagName('tr');
 
-				const [numEl, eventEl, typeEl, _, priceEl, __, profitEl] = row1.querySelectorAll('td');
+				const [numEl, eventEl, typeEl, _, priceEl, contractsE1, profitEl] = row1.querySelectorAll('td');
 				
 				const lastNum = numEl.textContent;
 				const type = typeEl.textContent;
@@ -86,9 +86,14 @@ const App = new Vue({
 				}
 
 				if(lastNum < this.lastNum){ // скролл
+					console.log('скролл');
+					console.log('numEl ' +  numEl.textContent);
+					console.log('priceEl ' +  priceEl.textContent);
+					console.log('trade-contracts ' +  contractsE1.textContent);
 					return;	
 				}
 				
+				let json;
 				let msg;
 				let sign = '+';
 				if (profitEl.querySelector('.trade-profit .additional_percent_value .neg')){
@@ -97,24 +102,45 @@ const App = new Vue({
 
 				if (this.lastNum && lastNum > this.lastNum) { // новая строка и это buy или sell
 					msg = type.toUpperCase() + ' цена: ' + priceEl.textContent;
-					msg += ' trade-contracts ' +  profitEl.querySelector('.trade-contracts').textContent;
-					msg += ' trade-num ' +  profitEl.querySelector('.trade-num').textContent;
-					msg += ' lastNum ' +  this.lastNum;
-					msg += ' lastStatus ' +  this.lastStatus;
+					// msg += ' trade-contracts ' +  contractsE1.querySelector('.trade-contracts').textContent;
+					// msg += ' trade-num ' +  profitEl.querySelector('.trade-num').textContent;
+					// msg += ' trade-contracts ' +  contractsE1.textContent;
+					// msg += ' lastNum ' +  lastNum;
+					// msg += ' this.lastNum ' +  this.lastNum;
+					// msg += ' this.lastStatus ' +  this.lastStatus;
+					
+					/* номер сделки lastNum
+					 * направление type.toUpperCase()
+					 * this.title Имя валютной пары
+					 * this.lastStatus Состояние
+					 */
+					json = '{"symbol":"' + this.title + '",';
+					if(type.toUpperCase() == 'ЛОНГ' || type.toUpperCase() == 'LONG') json += '"type":"long",';
+					else if(type.toUpperCase() == 'ШОРТ' || type.toUpperCase() == 'SHORT') json += '"type":"short",';
+					json += '"num":' + lastNum + '}';
+					
+					// передаем lastNum, type.toUpperCase(), 
 				} else if(lastStatus !== this.lastStatus){ // закрытие позиции
-				//trade-contracts
 					msg = lastStatus + ' профит: ' + sign + '' + profitEl.querySelector('.additional_percent_value').textContent;
-					msg += ' trade-contracts ' +  profitEl.querySelector('.trade-contracts').textContent;
-					msg += ' trade-num ' +  profitEl.querySelector('.trade-num').textContent;
-					msg += ' lastNum ' +  this.lastNum;
-					msg += ' lastStatus ' +  this.lastStatus;
+					// msg += ' trade-contracts ' +  contractsE1.querySelector('.trade-contracts').textContent;
+					// msg += ' trade-contracts ' +  contractsE1.textContent;
+					// msg += ' trade-num ' +  profitEl.querySelector('.trade-num').textContent;
+					// msg += ' lastNum ' +  lastNum;
+					// msg += ' this.lastNum ' +  this.lastNum;
+					// msg += ' lastStatus ' +  this.lastStatus;
+					
+					json = '{"symbol":"' + this.title + '",';
+					json += '"status":"close",';
+					json += '"num":' + lastNum + '}';
 				}
 
 				if (msg) {
-					console.log('this.title ' + this.title);
-					console.log('type.toUpperCase() ' + type.toUpperCase());
-					console.log('this.lastStatus ' + this.lastStatus);
-					console.log('this.lastNum ' + this.lastNum);
+					// console.log('this.title ' + this.title);
+					// console.log('type.toUpperCase() ' + type.toUpperCase());
+					// console.log('this.lastStatus ' + this.lastStatus);
+					// console.log('this.lastNum ' + this.lastNum);
+					// console.log('msg ' + msg);
+					console.log('json ' + json);
 					this.lastStatus = lastStatus;
 					this.lastNum = lastNum;
 					new Notification(this.title, {
@@ -124,9 +150,11 @@ const App = new Vue({
 					audio.play();
 					if(is_api_socket) {
 						api_socket.send('{"symbol":"'+ this.title +'","type":}');
+					} else {
+						connect_api();
 					}
 				}
-			}, 1000);
+			}, 10);
 		}
 	}
 });
@@ -151,3 +179,5 @@ function connect_api() {
 		is_api_socket = false;
 	}
 }
+
+
